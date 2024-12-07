@@ -57,7 +57,7 @@ def get_twitter_auth_url():
     }
     return f"https://twitter.com/i/oauth2/authorize?{urlencode(params)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True,methods=["POST"])
 def oauth_callback(code=None, state=None):
     if not code:
         frappe.throw("No authorization code received")

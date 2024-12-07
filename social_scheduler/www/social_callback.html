@@ -88,6 +88,7 @@
             if (1) {
                 frappe.call({
                     method: 'social_scheduler.social_scheduler.oauth.oauth_callback',
+                    type: 'POST',
                     args: {
                         code: code,
                         state: state
