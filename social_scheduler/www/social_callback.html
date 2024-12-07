@@ -1,16 +1,89 @@
-# social_scheduler/www/social_callback.html
+<!-- social_scheduler/www/social_callback.html -->
 <!DOCTYPE html>
 <html>
 <head>
     <title>Social Media Authentication</title>
-    <script src="/assets/frappe/js/frappe-web.min.js"></script>
+    <!-- Include all required Frappe resources -->
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="generator" content="frappe">
+	<meta name="theme-color" content="#ff0000">
     <script>
-        frappe.ready(function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-            const state = urlParams.get('state');
+		window.frappe = {};
+		frappe.ready_events = [];
+		frappe.ready = function(fn) {
+			frappe.ready_events.push(fn);
+		}
+		window.dev_server = {{ dev_server }};
+		window.socketio_port = {{ (frappe.socketio_port or 9000) }};
+		window.show_language_picker = {{ show_language_picker or 'false' }};
+	</script>
+    <script>
+		frappe.boot = {{ boot }}
+		// for backward compatibility of some libs
+		frappe.sys_defaults = frappe.boot.sysdefaults;
+	</script>
+	{{ include_script('frappe-web.bundle.js') }}
+    <script type="text/javascript">
+        // Fallback function for non-Frappe environments
+        function handleOAuthCallback(code, state) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/method/social_scheduler.social_scheduler.oauth.oauth_callback', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('X-Frappe-CSRF-Token', document.querySelector('meta[name=csrf-token]').getAttribute('content'));
             
-            if (code) {
+            xhr.onload = function() {
+                var response = JSON.parse(xhr.responseText);
+                if (xhr.status === 200 && !response.exc) {
+                    document.getElementById('status').innerHTML = 'Successfully connected! Closing window...';
+                    document.getElementById('status').style.color = 'green';
+                    
+                    // Notify opener window
+                    if (window.opener) {
+                        window.opener.postMessage({ 
+                            type: 'social-auth-success',
+                            platform: state
+                        }, '*');
+                    }
+                    
+                    setTimeout(function() {
+                        window.close();
+                    }, 2000);
+                } else {
+                    document.getElementById('status').innerHTML = 'Failed to connect: ' + (response.exc || 'Unknown error');
+                    document.getElementById('status').style.color = 'red';
+                }
+            };
+            
+            xhr.onerror = function() {
+                document.getElementById('status').innerHTML = 'Connection failed';
+                document.getElementById('status').style.color = 'red';
+            };
+            
+            xhr.send(JSON.stringify({
+                cmd: 'run',
+                method: 'social_scheduler.social_scheduler.oauth.oauth_callback',
+                args: {
+                    code: code,
+                    state: state
+                }
+            }));
+        }
+
+        // Wait for document to be ready
+        document.addEventListener('DOMContentLoaded', function() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var code = urlParams.get('code');
+            var state = urlParams.get('state');
+            
+            if (!code) {
+                document.getElementById('status').innerHTML = 'No authorization code received';
+                document.getElementById('status').style.color = 'red';
+                return;
+            }
+
+            // Try to use Frappe if available, otherwise use fallback
+            if (typeof frappe !== 'undefined') {
                 frappe.call({
                     method: 'social_scheduler.social_scheduler.oauth.oauth_callback',
                     args: {
@@ -28,15 +101,17 @@
                                     type: 'social-auth-success',
                                     platform: state
                                 }, '*');
-                            }
-                            
-                            // Refresh opener page if it's a Frappe page
-                            if (window.opener && window.opener.frappe) {
-                                window.opener.frappe.show_alert({
-                                    message: `${state} connected successfully!`,
-                                    indicator: 'green'
-                                });
-                                window.opener.cur_frm && window.opener.cur_frm.reload_doc();
+                                
+                                // Refresh opener if it's a Frappe page
+                                if (window.opener.frappe) {
+                                    window.opener.frappe.show_alert({
+                                        message: `${state} connected successfully!`,
+                                        indicator: 'green'
+                                    });
+                                    if (window.opener.cur_frm) {
+                                        window.opener.cur_frm.reload_doc();
+                                    }
+                                }
                             }
                             
                             setTimeout(function() {
@@ -49,15 +124,16 @@
                     }
                 });
             } else {
-                document.getElementById('status').innerHTML = 'No authorization code received';
-                document.getElementById('status').style.color = 'red';
+                // Use fallback if Frappe is not available
+                handleOAuthCallback(code, state);
             }
         });
     </script>
 </head>
 <body>
-    <div style="text-align: center; padding: 20px;">
+    <div style="text-align: center; padding: 20px; font-family: Arial, sans-serif;">
         <h3 id="status">Connecting your account...</h3>
+        <div id="error" style="color: red; margin-top: 10px;"></div>
     </div>
 </body>
 </html>
