@@ -14,19 +14,21 @@ def schedule_posts():
     
     for post in posts:
         try:
+            platform = frappe.get_doc("Social Platform", post.platforms)
+            
+            if platform.platform == "LinkedIn":
+                post_to_linkedin(post.content, platform.access_token)
+            elif platform.platform == "Twitter":
+                post_to_twitter(post.content, platform.access_token)
+            
             doc = frappe.get_doc("Social Post", post.name)
-            for platform in doc.platforms:
-                if platform.platform == "LinkedIn":
-                    post_to_linkedin(doc.content, platform.access_token)
-                elif platform.platform == "Twitter":
-                    post_to_twitter(doc.content, platform.access_token)
             
             doc.status = "Posted"
             doc.save()
         except Exception as e:
             frappe.log_error(f"Failed to post {post.name}: {str(e)}")
-            doc.status = "Failed"
-            doc.save()
+            # doc.status = "Failed"
+            # doc.save()
 
 def post_to_linkedin(content, access_token):
     url = "https://api.linkedin.com/v2/ugcPosts"

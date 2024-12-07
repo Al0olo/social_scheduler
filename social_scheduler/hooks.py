@@ -152,7 +152,7 @@ scheduler_events = {
     "cron": {
         "* * * * *": [
             "social_scheduler.scheduler.schedule_posts"
-        ],
+        ],  
 
     }
 }
