@@ -9,6 +9,7 @@ def get_callback_url(platform):
     settings = frappe.get_single("Social Settings")
     return settings.redirect_uri
 
+@frappe.whitelist(allow_guest=True)
 def get_linkedin_auth_url():
     settings = frappe.get_single("Social Settings")
     params = {
@@ -20,6 +21,7 @@ def get_linkedin_auth_url():
     }
     return f"https://www.linkedin.com/oauth/v2/authorization?{urlencode(params)}"
 
+@frappe.whitelist(allow_guest=True)
 def get_twitter_auth_url():
     settings = frappe.get_single("Social Settings")
     params = {
