@@ -127,7 +127,8 @@
                 });
             } else {
                 // Use fallback if Frappe is not available
-                handleOAuthCallback(code, state);
+                // handleOAuthCallback(code, state);
+                window.close();
             }
         });
     </script>
