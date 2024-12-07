@@ -1,7 +1,9 @@
+# social_scheduler/www/social_callback.html
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Social Media Connection</title>
+    <title>Social Media Authentication</title>
+    <script src="/assets/frappe/js/frappe-web.min.js"></script>
     <script>
         frappe.ready(function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -9,34 +11,53 @@
             const state = urlParams.get('state');
             
             if (code) {
-                // Determine which platform based on state parameter
-                const platform = state === 'linkedin' ? 'linkedin' : 'twitter';
-                
                 frappe.call({
-                    method: `social_scheduler.social_scheduler.oauth.${platform}_callback`,
+                    method: 'social_scheduler.social_scheduler.oauth.oauth_callback',
                     args: {
-                        code: code
+                        code: code,
+                        state: state
                     },
-                    callback: function(response) {
-                        if (!response.exc) {
-                            frappe.show_alert({
-                                message: `${platform} connected successfully!`,
-                                indicator: 'green'
-                            });
-                            setTimeout(() => {
+                    callback: function(r) {
+                        if (!r.exc) {
+                            document.getElementById('status').innerHTML = 'Successfully connected! Closing window...';
+                            document.getElementById('status').style.color = 'green';
+                            
+                            // Notify opener
+                            if (window.opener) {
+                                window.opener.postMessage({ 
+                                    type: 'social-auth-success',
+                                    platform: state
+                                }, '*');
+                            }
+                            
+                            // Refresh opener page if it's a Frappe page
+                            if (window.opener && window.opener.frappe) {
+                                window.opener.frappe.show_alert({
+                                    message: `${state} connected successfully!`,
+                                    indicator: 'green'
+                                });
+                                window.opener.cur_frm && window.opener.cur_frm.reload_doc();
+                            }
+                            
+                            setTimeout(function() {
                                 window.close();
                             }, 2000);
+                        } else {
+                            document.getElementById('status').innerHTML = 'Failed to connect: ' + r.exc;
+                            document.getElementById('status').style.color = 'red';
                         }
                     }
                 });
+            } else {
+                document.getElementById('status').innerHTML = 'No authorization code received';
+                document.getElementById('status').style.color = 'red';
             }
         });
     </script>
 </head>
 <body>
-    <div class="container">
-        <h3>Connecting your account...</h3>
-        <p>This window will close automatically once the connection is complete.</p>
+    <div style="text-align: center; padding: 20px;">
+        <h3 id="status">Connecting your account...</h3>
     </div>
 </body>
 </html>
