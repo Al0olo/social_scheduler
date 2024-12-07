@@ -24,6 +24,13 @@
 		frappe.sys_defaults = frappe.boot.sysdefaults;
 	</script>
 	{{ include_script('frappe-web.bundle.js') }}
+    {%- block script %}
+		{% if colocated_js -%}
+			<script>{{ colocated_js }}</script>
+		{%- endif %}
+	{%- endblock %}
+	<!-- csrf_token -->
+	{%- block body_include %}{{ body_include or "" }}{% endblock -%}
     <script type="text/javascript">
         // Fallback function for non-Frappe environments
         function handleOAuthCallback(code, state) {
