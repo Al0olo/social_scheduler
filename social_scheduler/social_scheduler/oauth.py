@@ -16,7 +16,7 @@ def get_linkedin_auth_url():
         "response_type": "code",
         "client_id": settings.linkedin_client_id,
         "redirect_uri": settings.redirect_uri,
-        "scope": "r_liteprofile w_member_social",
+        "scope": "w_member_social",
         "state": "linkedin",
     }
     return f"https://www.linkedin.com/oauth/v2/authorization?{urlencode(params)}"
@@ -28,7 +28,9 @@ def get_twitter_auth_url():
         "response_type": "code",
         "client_id": settings.twitter_client_id,
         "redirect_uri": settings.redirect_uri,
-        "scope": "tweet.read tweet.write users.read offline.access",
+        "scope": "tweet.read tweet.write",
+        "code_challenge": "challenge",  # Added PKCE support
+        "code_challenge_method": "plain",
         "state": "twitter",
     }
     return f"https://twitter.com/i/oauth2/authorize?{urlencode(params)}"
