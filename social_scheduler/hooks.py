@@ -151,7 +151,7 @@ app_license = "mit"
 scheduler_events = {
     "cron": {
         "* * * * *": [
-            "social_scheduler.social_scheduler.scheduler.schedule_posts"
+            "social_scheduler.scheduler.schedule_posts"
         ],
 
     }
