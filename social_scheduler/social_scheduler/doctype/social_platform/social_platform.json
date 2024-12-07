@@ -1,0 +1,52 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-12-07 06:51:07.345470",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [],
+ "fields": [
+    {
+        "fieldname": "platform",
+        "label": "Platform",
+        "fieldtype": "Select",
+        "options": "LinkedIn\nTwitter",
+        "reqd": 1
+    },
+    {
+        "fieldname": "access_token",
+        "label": "Access Token",
+        "fieldtype": "Password",
+        "reqd": 1
+    },
+    {
+        "fieldname": "refresh_token",
+        "label": "Refresh Token",
+        "fieldtype": "Password"
+    }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-12-07 06:51:07.345470",
+ "modified_by": "Administrator",
+ "module": "Social Scheduler",
+ "name": "Social Platform",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

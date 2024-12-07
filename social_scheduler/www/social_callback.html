@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Social Media Connection</title>
+    <script>
+        frappe.ready(function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            
+            if (code) {
+                // Determine which platform based on state parameter
+                const platform = state === 'linkedin' ? 'linkedin' : 'twitter';
+                
+                frappe.call({
+                    method: `social_scheduler.social_scheduler.oauth.${platform}_callback`,
+                    args: {
+                        code: code
+                    },
+                    callback: function(response) {
+                        if (!response.exc) {
+                            frappe.show_alert({
+                                message: `${platform} connected successfully!`,
+                                indicator: 'green'
+                            });
+                            setTimeout(() => {
+                                window.close();
+                            }, 2000);
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h3>Connecting your account...</h3>
+        <p>This window will close automatically once the connection is complete.</p>
+    </div>
+</body>
+</html>

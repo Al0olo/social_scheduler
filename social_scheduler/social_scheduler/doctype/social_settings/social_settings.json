@@ -1,0 +1,91 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-12-07 06:52:40.163267",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [],
+ "fields": [
+    {
+        "fieldname": "general_settings_section",
+        "fieldtype": "Section Break",
+        "label": "General Settings"
+    },
+    {
+        "fieldname": "redirect_uri",
+        "label": "Redirect URI",
+        "fieldtype": "Data",
+        "reqd": 1,
+        "description": "The OAuth callback URL (e.g., https://your-site.com/social_callback)"
+    },
+    {
+        "fieldname": "linkedin_section",
+        "fieldtype": "Section Break",
+        "label": "LinkedIn Credentials"
+    },
+    {
+        "fieldname": "linkedin_client_id",
+        "label": "LinkedIn Client ID",
+        "fieldtype": "Data",
+        "reqd": 1
+    },
+    {
+        "fieldname": "linkedin_client_secret",
+        "label": "LinkedIn Client Secret",
+        "fieldtype": "Password",
+        "reqd": 1
+    },
+    {
+        "fieldname": "twitter_credentials_section",
+        "fieldtype": "Section Break",
+        "label": "Twitter Credentials"
+    },
+    {
+        "fieldname": "twitter_client_id",
+        "label": "Twitter Client ID",
+        "fieldtype": "Data",
+        "reqd": 1
+    },
+    {
+        "fieldname": "twitter_client_secret",
+        "label": "Twitter Client Secret",
+        "fieldtype": "Password",
+        "reqd": 1
+    },
+    {
+        "fieldname": "twitter_api_key",
+        "label": "Twitter API Key",
+        "fieldtype": "Data",
+        "reqd": 1
+    },
+    {
+        "fieldname": "twitter_api_secret",
+        "label": "Twitter API Secret",
+        "fieldtype": "Password",
+        "reqd": 1
+    }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-12-07 06:52:40.163267",
+ "modified_by": "Administrator",
+ "module": "Social Scheduler",
+ "name": "Social Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
