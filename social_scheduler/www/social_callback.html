@@ -72,9 +72,11 @@
 
         // Wait for document to be ready
         document.addEventListener('DOMContentLoaded', function() {
+            console.log("Document is Ready...")
             var urlParams = new URLSearchParams(window.location.search);
             var code = urlParams.get('code');
             var state = urlParams.get('state');
+            console.log(`the code is: ${code}, and the state is: ${state}`)
             
             if (!code) {
                 document.getElementById('status').innerHTML = 'No authorization code received';
@@ -83,7 +85,7 @@
             }
 
             // Try to use Frappe if available, otherwise use fallback
-            if (typeof frappe !== 'undefined') {
+            if (1) {
                 frappe.call({
                     method: 'social_scheduler.social_scheduler.oauth.oauth_callback',
                     args: {

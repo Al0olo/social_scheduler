@@ -2,7 +2,19 @@ import frappe
 import requests
 from urllib.parse import urlencode
 import base64
+import hashlib
+import secrets
 from urllib.parse import urlencode
+
+def generate_code_verifier():
+    """Generate a random code verifier for PKCE"""
+    return secrets.token_urlsafe(96)[:128]
+
+def generate_code_challenge(verifier):
+    """Generate code challenge from verifier using S256 method"""
+    sha256 = hashlib.sha256(verifier.encode('utf-8')).digest()
+    return base64.urlsafe_b64encode(sha256).decode('utf-8').rstrip('=')
+
 
 @frappe.whitelist(allow_guest=True)
 def get_callback_url(platform):
@@ -23,14 +35,24 @@ def get_linkedin_auth_url():
 
 @frappe.whitelist(allow_guest=True)
 def get_twitter_auth_url():
+    # Generate PKCE codes
+    code_verifier = generate_code_verifier()
+    code_challenge = generate_code_challenge(code_verifier)
+    
+    # Store code_verifier in cache for later use
+    frappe.cache().set_value(
+        f"twitter_code_verifier_{frappe.session.user}",
+        code_verifier,
+        expires_in_sec=600
+    )
     settings = frappe.get_single("Social Settings")
     params = {
         "response_type": "code",
         "client_id": settings.twitter_client_id,
         "redirect_uri": settings.redirect_uri,
         "scope": "tweet.read tweet.write",
-        "code_challenge": "challenge",  # Added PKCE support
-        "code_challenge_method": "plain",
+        "code_challenge": code_challenge,
+        "code_challenge_method": "S256",
         "state": "twitter",
     }
     return f"https://twitter.com/i/oauth2/authorize?{urlencode(params)}"
@@ -109,11 +131,18 @@ def twitter_callback(code):
         settings = frappe.get_single("Social Settings")
         token_url = "https://api.twitter.com/2/oauth2/token"
         
+        # Retrieve stored code_verifier
+        code_verifier = frappe.cache().get_value(f"twitter_code_verifier_{frappe.session.user}")
+        if not code_verifier:
+            frappe.throw("Authentication timeout. Please try again.")
+
+
         data = {
             "grant_type": "authorization_code",
             "code": code,
             "redirect_uri": settings.redirect_uri,
             "client_id": settings.twitter_client_id,
+            "code_verifier": code_verifier
         }
         
         auth_header = base64.b64encode(
@@ -135,6 +164,8 @@ def twitter_callback(code):
             frappe.throw(f"Failed to authenticate with Twitter: {response.text}")
             
         tokens = response.json()
+        # Clear the stored code_verifier
+        frappe.cache().delete_key(f"twitter_code_verifier_{frappe.session.user}")
         
         existing_platforms = frappe.get_all(
             "Social Platform",
