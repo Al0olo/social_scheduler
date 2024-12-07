@@ -1,7 +1,7 @@
 import frappe
 from datetime import datetime
 import requests
-
+@frappe.whitelist(allow_guest=True)
 def schedule_posts():
     posts = frappe.get_all(
         "Social Post",

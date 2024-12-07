@@ -148,23 +148,14 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"social_scheduler.tasks.all"
-# 	],
-# 	"daily": [
-# 		"social_scheduler.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"social_scheduler.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"social_scheduler.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"social_scheduler.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+    "cron": {
+        "* * * * *": [
+            "social_scheduler.social_scheduler.scheduler.schedule_posts"
+        ],
+
+    }
+}
 
 # Testing
 # -------
