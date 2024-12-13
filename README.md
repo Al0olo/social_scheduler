@@ -1,4 +1,4 @@
-### Social Scheduler
+### Social Scheduler:
 
 Simple App to schedule posts to social media platforms
 
